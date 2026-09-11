@@ -1,0 +1,8 @@
+This repo is a DraconDex extension.
+
+The app checks only that this file EXISTS at the repo root — its contents are
+never parsed, fetched at install time, or shown to anyone. Keeping it means a
+repo forked from this template already opts into the in-app
+"install from @ZYDRAXYL" list without the author doing anything.
+
+The manifest the app actually reads is dracondex-plugin.json.

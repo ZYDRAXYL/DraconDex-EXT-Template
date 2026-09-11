@@ -1,0 +1,11 @@
+{
+  "name": "dracondex-ext-template",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Template for a DraconDex in-app extension (plugin)",
+  "type": "module",
+  "scripts": {
+    "validate": "node tools/validate-manifest.mjs"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,41 @@
+{
+  "id": "ext_template",
+  "name": "DraconDex Extension Template",
+  "version": "1.0.0",
+  "entry": "index.html",
+  "files": [
+    "index.html",
+    "panel.html",
+    "app.js",
+    "style.css"
+  ],
+  "tables": [
+    {
+      "name": "notes",
+      "columns": [
+        { "name": "title", "type": "TEXT" },
+        { "name": "body", "type": "TEXT" },
+        { "name": "created_at", "type": "TEXT" },
+        { "name": "pinned", "type": "INTEGER" }
+      ]
+    },
+    {
+      "name": "kv",
+      "columns": [
+        { "name": "k", "type": "TEXT" },
+        { "name": "v", "type": "TEXT" }
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "id": "notes",
+      "title": "Template Notes",
+      "icon": "🧩",
+      "entry": "panel.html"
+    }
+  ],
+  "permissions": {
+    "context": ["module"]
+  }
+}

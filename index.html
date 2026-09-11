@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- No <base>, no CDN, no remote font. An extension is downloaded file-by-file
+     from the paths in the manifest's "files" list and loaded from disk; a
+     remote <script> or stylesheet would not be part of that list, would not be
+     reviewable in the install preview, and would turn every launch into a
+     silent network fetch. Ship what you declare. -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:;">
+<title>DraconDex Extension Template</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>🧩 Extension Template</h1>
+  <p class="hint">
+    The standalone window. Same code as the docked panel — see app.js.
+  </p>
+
+  <h2>Add a note</h2>
+  <div class="row">
+    <input id="title" type="text" placeholder="Title" maxlength="120">
+    <button id="add">Add</button>
+  </div>
+  <textarea id="body" placeholder="Body (autosaved to the kv table as you type)"></textarea>
+
+  <h2>Notes</h2>
+  <ul class="notes" id="notes"></ul>
+
+  <h2>Network</h2>
+  <p class="hint">
+    This template declares no <code>permissions.net</code>, so any request below
+    is refused. Add the origin to the manifest and reinstall to allow it.
+  </p>
+  <div class="row">
+    <input id="net-url" type="text" placeholder="https://api.example.com/thing">
+    <button id="probe" class="ghost">Request</button>
+  </div>
+
+  <h2>Status</h2>
+  <div class="box" id="status">Loading…</div>
+
+  <script src="app.js"></script>
+</body>
+</html>
