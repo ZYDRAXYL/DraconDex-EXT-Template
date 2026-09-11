@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:;">
+<title>Template Notes</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<!-- class="panel" is what app.js reads to decide it is docked rather than
+     standalone: only the panel host answers panel.send/onMessage. -->
+<body class="panel">
+  <h2>Current module</h2>
+  <div class="box" id="context">Asking the host…</div>
+  <div class="row" style="margin-top:6px">
+    <button id="refresh-context" class="ghost">Refresh</button>
+    <button id="close-panel" class="ghost">Close panel</button>
+  </div>
+
+  <h2>Add a note</h2>
+  <div class="row">
+    <input id="title" type="text" placeholder="Title" maxlength="120">
+    <button id="add">Add</button>
+  </div>
+  <textarea id="body" placeholder="Body"></textarea>
+
+  <h2>Notes</h2>
+  <ul class="notes" id="notes"></ul>
+
+  <div class="box" id="status" style="margin-top:10px">Loading…</div>
+
+  <script src="app.js"></script>
+</body>
+</html>

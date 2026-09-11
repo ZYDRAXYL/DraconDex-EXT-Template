@@ -1,0 +1,99 @@
+/* Theme-neutral styling for a DraconDex extension.
+ *
+ * An extension page is loaded in its OWN BrowserWindow (or its own <webview>
+ * when docked as a panel). It never inherits the host app's stylesheet, so
+ * none of DraconDex's 30+ theme families reach it and there is no CSS variable
+ * to read the active theme from. The honest option is to follow the OS colour
+ * scheme, which is what the app's own default theme tracks anyway.
+ *
+ * Keep every colour defined on bare :root and re-declare only what changes in
+ * the dark block — a colour whose ONLY definition lives inside a media query
+ * is undefined for half your users. */
+:root {
+  --bg: #faf9f7;
+  --surface: #ffffff;
+  --border: #e3e0da;
+  --text: #1f1d1a;
+  --muted: #6b665e;
+  --accent: #7b5cd6;
+  --accent-text: #ffffff;
+  --danger: #b3261e;
+  --radius: 8px;
+  --pad: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17161a;
+    --surface: #201f25;
+    --border: #35333c;
+    --text: #eceaf2;
+    --muted: #9d99a8;
+    --accent: #a68cf0;
+    --accent-text: #17161a;
+    --danger: #f2837b;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: var(--pad);
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.5 "Segoe UI", system-ui, -apple-system, "Noto Sans Thai", sans-serif;
+}
+
+/* The panel lives in a dock the user can drag down to a very narrow width.
+ * Nothing here may assume more room than that. */
+body.panel { padding: 8px; font-size: 13px; }
+
+h1 { font-size: 16px; margin: 0 0 4px; }
+h2 { font-size: 13px; margin: 16px 0 6px; color: var(--muted); font-weight: 600; }
+p.hint { margin: 0 0 12px; color: var(--muted); font-size: 12px; }
+
+.row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.row > input { flex: 1 1 120px; min-width: 0; }
+
+input, textarea, button {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 8px;
+}
+textarea { width: 100%; resize: vertical; min-height: 54px; }
+
+button { cursor: pointer; background: var(--accent); color: var(--accent-text); border-color: transparent; }
+button:hover { filter: brightness(1.08); }
+button.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
+button.link { background: none; border: none; color: var(--danger); padding: 2px 4px; }
+
+ul.notes { list-style: none; margin: 10px 0 0; padding: 0; }
+ul.notes li {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+  margin-bottom: 6px;
+  /* Long words in user content must not push the dock wider than its column. */
+  overflow-wrap: anywhere;
+}
+ul.notes .title { font-weight: 600; }
+ul.notes .body { color: var(--muted); font-size: 12px; white-space: pre-wrap; }
+ul.notes .meta { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+li.pinned { border-color: var(--accent); }
+
+.box {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+  background: var(--surface);
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.box code { color: var(--text); }
+.empty { color: var(--muted); font-size: 12px; padding: 8px 0; }
