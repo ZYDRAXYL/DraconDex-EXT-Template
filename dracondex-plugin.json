@@ -1,7 +1,7 @@
 {
   "id": "ext_template",
   "name": "DraconDex Extension Template",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "entry": "index.html",
   "files": [
     "index.html",
@@ -16,7 +16,9 @@
         { "name": "title", "type": "TEXT" },
         { "name": "body", "type": "TEXT" },
         { "name": "created_at", "type": "TEXT" },
-        { "name": "pinned", "type": "INTEGER" }
+        { "name": "pinned", "type": "INTEGER" },
+        { "name": "module_id", "type": "TEXT" },
+        { "name": "module_name", "type": "TEXT" }
       ]
     },
     {
