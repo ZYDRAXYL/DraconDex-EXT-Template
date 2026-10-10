@@ -3,6 +3,11 @@ name: extension-publish
 description: Get a DraconDex extension installable and keep it that way — the `.dracondex` marker and how the in-app "install from @ZYDRAXYL" list actually decides what to show, which link shapes the install box accepts, what the preview card does and does not prove, what a version bump does to an installed copy (nothing, without a reinstall), and how to declare another extension as a dependency. Use before the first install, when a repo does not appear in the app's recommend list, when an install is refused with `no_manifest`/`unsupported_host`, when shipping an update, or when asked "ติดตั้งไม่ได้", "ไม่ขึ้นในรายการ", "ปล่อยเวอร์ชันใหม่ของปลั๊กอิน", "publish this extension".
 ---
 
+<!-- mirrored-from-app: do not edit here -->
+> **Mirrored file — edit this in `ZYDRAXYL/DraconDex-APP`, not here.**
+> `tools/mirror-claude.mjs` regenerates it and any local edit is lost on the
+> next mirror. ดูสัญญาของ chain ที่ `chain/README.md`
+
 # Publishing an extension
 
 There is no registry, no build and no release artifact. A pushed branch with a
@@ -12,11 +17,27 @@ valid manifest **is** the distribution.
 
 ```bash
 npm run validate
+npm run contract
 node --check app.js
 ```
 
-Then push, paste the repo link into **การตั้งค่า → ปลั๊กอิน**, read the preview,
-confirm.
+Then push, paste the repo link into **Setting → Plugin → Plugins** (DraconDex 5
+merged the old "Plugins" and "Plugin settings" pages into one), read the
+preview, confirm.
+
+## Which DraconDex it is for
+
+`plugin-contract.lock.json` names the EXE release whose rules `npm run
+validate` enforces. Before shipping against a newer app:
+
+```bash
+node tools/plugin-contract.mjs --upstream            # did the contract move?
+node tools/plugin-contract.mjs --vendor --ref v5.2.0 # move the pin, re-validate
+```
+
+A `review electron/preload-plugin.js` line means the `pluginApi` surface itself
+changed — read the diff in DraconDex-EXE before assuming your code still
+works.
 
 ## The link box
 
@@ -128,7 +149,7 @@ but never auto-installed, so there is no chain and no cycle to detect.
 
 Since v4.9.0 a dependency that fails does **not** block your install. It blocks
 **launch**: the button is disabled, `plugin:launch` refuses with
-`missing_dependency`, the panel button stays hidden, and the user gets a
+`missing_dependency`, the panel button on the page's address row stays hidden, and the user gets a
 Download button per missing dependency. Design for running without it only in
 the sense of failing clearly — the app will not start you without it.
 

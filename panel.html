@@ -7,27 +7,25 @@
 <title>Template Notes</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<!-- class="panel" is what app.js reads to decide it is docked rather than
-     standalone: only the panel host answers panel.send/onMessage. -->
+<!-- class="panel" is what app.js reads to decide it is in the DraconDex 5
+     side panel rather than its own window: only the panel host answers
+     panel.send/onMessage.
+     No title bar and no close button here — the side panel draws its own
+     header (the manifest's icon + title, and a ×). -->
 <body class="panel">
-  <h2>Current module</h2>
-  <div class="box" id="context">Asking the host…</div>
-  <div class="row" style="margin-top:6px">
-    <button id="refresh-context" class="ghost">Refresh</button>
-    <button id="close-panel" class="ghost">Close panel</button>
-  </div>
+  <div class="box context" id="context">Asking the host…</div>
 
-  <h2>Add a note</h2>
+  <h2>Add a note to this module</h2>
   <div class="row">
     <input id="title" type="text" placeholder="Title" maxlength="120">
     <button id="add">Add</button>
   </div>
-  <textarea id="body" placeholder="Body"></textarea>
+  <textarea id="body" placeholder="Body (survives closing the panel)"></textarea>
 
-  <h2>Notes</h2>
+  <h2 id="notes-heading">Notes</h2>
   <ul class="notes" id="notes"></ul>
 
-  <div class="box" id="status" style="margin-top:10px">Loading…</div>
+  <div class="box status" id="status">Loading…</div>
 
   <script src="app.js"></script>
 </body>
