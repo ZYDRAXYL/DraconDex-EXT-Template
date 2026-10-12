@@ -1,13 +1,13 @@
 # DraconDex-EXT-Template
 
-Template repo for a **DraconDex in-app extension** — a small web app that
-DraconDex downloads from a git repo and runs either in its own window or docked
-inside the main window, with its own database tables and nothing else.
+Template repo for a **DraconDex 5 in-app extension** — a small web app that
+DraconDex downloads from a git repo and runs either in its own window or in the
+main window's side panel, with its own database tables and nothing else.
 
 > เทมเพลตสำหรับเขียน "ปลั๊กอิน/ส่วนขยาย" ของ DraconDex — กด **Use this
 > template** บน GitHub, แก้ `dracondex-plugin.json`, แล้ววางลิงก์ repo ลงใน
-> **การตั้งค่า → ปลั๊กอิน** ของแอป เอกสารฉบับเต็ม (ภาษาไทย) อยู่ที่
-> `docs/PLUGINS.md` ใน DraconDex-APP
+> **Setting → Plugin → Plugins** ของแอป เอกสารฉบับเต็ม (ภาษาไทย) อยู่ที่
+> `docs/PLUGINS.md` ใน DraconDex-APP · เขียนสำหรับ DraconDex 5 (ใช้ได้กับ 4.3+)
 
 Extension and plugin are the same thing. The feature shipped in v4.0.0 as
 "Github Extensions" and was renamed to **Plugin** in v4.2.0; the old names
@@ -24,11 +24,15 @@ Extension and plugin are the same thing. The feature shipped in v4.0.0 as
    - `name`, `version` — shown in the install preview.
    - `tables` — the tables you get. Columns are `TEXT`/`INTEGER`/`REAL` only.
    - `panels` — drop this if you only want a standalone window.
-3. `npm run validate` — checks the manifest against the app's real rules before
-   you push, and tells you if a file is missing from `files`.
+3. `npm run validate` — runs **the app's own** `validateManifest()` (vendored
+   from DraconDex-EXE, see below) before you push, and tells you if a file is
+   missing from `files`.
 4. Commit and push to `main`.
-5. In DraconDex: **การตั้งค่า → ปลั๊กอิน**, paste the repo link, read the
+5. In DraconDex: **Setting → Plugin → Plugins**, paste the repo link, read the
    preview, confirm.
+
+The `extension-scaffold` skill (`.claude/skills/`) walks through all of this,
+including which files only matter inside the DraconDex project and can go.
 
 Keep the `.dracondex` file at the repo root. The app checks only that it
 exists; it is what makes your repo show up in the in-app "install from
@@ -40,16 +44,40 @@ exists; it is what makes your repo show up in the in-app "install from
 |---|---|
 | `dracondex-plugin.json` | The manifest. The only file the app reads to decide what to install. |
 | `.dracondex` | Marker — opts the repo into the in-app recommendation list. |
-| `index.html` | Standalone-window entry (`entry` in the manifest). |
-| `panel.html` | Docked-panel entry, declared under `panels[]`. |
-| `app.js` | Shared logic for both — table CRUD, panel context, the net probe. |
-| `style.css` | Theme-neutral CSS that follows the OS light/dark preference. |
-| `tools/validate-manifest.mjs` | Offline manifest check. |
-| `.claude/` | Skills and an agent for working on this repo with Claude Code. |
+| `index.html` | Standalone-window entry (`entry` in the manifest). Frameless — draws its own title bar. |
+| `panel.html` | Side-panel entry, declared under `panels[]`. The host draws its header. |
+| `app.js` | Shared logic for both — table CRUD, live module context, the net probe. |
+| `style.css` | DraconDex 5's `daylight`/`midnight` palette, following the OS light/dark preference. |
+| `tools/validate-manifest.mjs` | Offline manifest check that runs the app's own rules. |
+| `tools/plugin-manifest.cjs` | Those rules: a byte-identical copy of DraconDex-EXE's `plugin-manifest.js`. Do not edit. |
+| `tools/plugin-contract.mjs` + `plugin-contract.lock.json` | Which DraconDex release the copy came from; checks it, moves the pin. |
+| `.claude/` | Skills and agents for working on this with Claude Code. |
+| `chain/`, `tools/chain-*.mjs` | DraconDex project tooling — only meaningful in this template repo; delete in your copy. |
 
-`README.md`, `CLAUDE.md`, `.claude/`, `tools/` and `package.json` are **not** in
-the manifest's `files` list, so they are never downloaded into the app. Only
-the four runtime files are.
+None of that is in the manifest's `files` list, so none of it is downloaded into
+the app. Only the four runtime files are.
+
+## Which DraconDex it targets
+
+`plugin-contract.lock.json` pins the DraconDex-EXE release whose rules
+`npm run validate` enforces (v5.1.0 today). When a newer DraconDex ships:
+
+```bash
+npm run contract:upstream                           # did the rules or the API move?
+node tools/plugin-contract.mjs --vendor --ref v5.2.0  # move the pin
+npm run validate
+```
+
+## What DraconDex 5 changed
+
+- Panels open in the **side panel** beside the page (the Module Inspector dock
+  is gone). The button is on the page's address row; the side panel draws the
+  header and close button and is 220–640px wide.
+- A panel is **not reloaded when the page re-renders** any more. It stays open
+  across pages and is destroyed when closed.
+- While it is open, the host **pushes a new `context`** on every page change.
+  The panel here re-filters its notes to the module now open.
+- The manifest did not change.
 
 ## The API you get
 
@@ -67,7 +95,7 @@ await pluginApi.net.stream(url, init, { onChunk, onEnd })   // -> abort()
 await pluginApi.oauth.authorize({ authorizeUrl, clientId, scope })
 
 pluginApi.panel.send({ type: 'getContext' })   // panel host only
-pluginApi.panel.onMessage(cb)                  // -> unsubscribe
+pluginApi.panel.onMessage(cb)                  // -> unsubscribe; 'context' also arrives on every page change
 pluginApi.panel.close()
 ```
 
@@ -81,10 +109,12 @@ always carry an `id` the app maintains — you cannot declare a column called
 
 ## Three things that catch people out
 
-**A docked panel is reloaded from scratch whenever the main window re-renders
-its pane** — renaming a tag is enough. Module-scope variables do not survive
-it. Persist anything worth keeping to a table and read it back on load; the
-`kv` table and the autosaved draft box in `app.js` exist to show this.
+**A panel is destroyed when it closes.** DraconDex 5 keeps it alive across page
+changes, but the side panel's ×, opening another plugin's panel, or quitting
+the app ends it (and on a 4.x host every pane re-render reloaded it).
+Module-scope variables do not survive that. Persist anything worth keeping to a
+table and read it back on load; the `kv` table and the autosaved draft box in
+`app.js` exist to show this.
 
 **Only paths in `files` are downloaded.** A stylesheet you forgot to list is
 not fetched, and the extension loads unstyled with no error. `npm run validate`
@@ -115,9 +145,10 @@ Full write-up: `docs/PLUGINS.md` in **DraconDex-APP**, §2.4 especially.
 
 ## Working on this with Claude Code
 
-`CLAUDE.md` and `.claude/` carry the contract. Unlike the chain repos, nothing
-here is mirrored from DraconDex-APP — these files are authored in this repo and
-are yours to edit after you use the template.
+`CLAUDE.md` and `.claude/` carry the contract. In this template repo the
+`.claude/` files and the `tools/` scripts are mirrored from DraconDex-APP (edit
+them there); in your copy they are yours — the `extension-scaffold` skill says
+which to keep.
 
 ## License
 

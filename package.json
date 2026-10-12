@@ -1,11 +1,15 @@
 {
   "name": "dracondex-ext-template",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Template for a DraconDex in-app extension (plugin)",
+  "description": "Template for a DraconDex 5 extension (plugin) — standalone window + side panel",
   "type": "module",
   "scripts": {
-    "validate": "node tools/validate-manifest.mjs"
+    "validate": "node tools/validate-manifest.mjs",
+    "contract": "node tools/plugin-contract.mjs",
+    "contract:upstream": "node tools/plugin-contract.mjs --upstream",
+    "contract:vendor": "node tools/plugin-contract.mjs --vendor",
+    "check": "node --check app.js && npm run contract && npm run validate"
   },
   "license": "MIT"
 }

@@ -1,0 +1,33 @@
+# Catches what would otherwise only surface as a failed install inside
+# DraconDex. No dependencies — the validator is plain Node running the app's
+# own validateManifest() (tools/plugin-manifest.cjs, vendored from
+# DraconDex-EXE and pinned in plugin-contract.lock.json).
+name: Validate extension
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Vendored plugin contract is untouched
+        run: node tools/plugin-contract.mjs
+      - name: Manifest (the app's own rules) + files on disk
+        run: node tools/validate-manifest.mjs
+      - name: Parse shipped scripts
+        run: node --check app.js
+      # Advisory: says when DraconDex-EXE moved its contract past our pin.
+      # Never fails the build — EXE's release schedule is not this repo's.
+      - name: Has the contract moved upstream?
+        run: node tools/plugin-contract.mjs --upstream
+        continue-on-error: true

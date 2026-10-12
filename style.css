@@ -1,74 +1,127 @@
-/* Theme-neutral styling for a DraconDex extension.
+/* Styling for a DraconDex extension — DraconDex 5's own palette.
  *
  * An extension page is loaded in its OWN BrowserWindow (or its own <webview>
- * when docked as a panel). It never inherits the host app's stylesheet, so
- * none of DraconDex's 30+ theme families reach it and there is no CSS variable
- * to read the active theme from. The honest option is to follow the OS colour
- * scheme, which is what the app's own default theme tracks anyway.
+ * in the side panel). It never inherits the host app's stylesheet, so none of
+ * DraconDex's themes reach it and there is no CSS variable to read the active
+ * theme from. The honest option is to follow the OS colour scheme, using the
+ * two built-in themes the app itself ships for light and dark: `daylight` and
+ * `midnight` (DraconDex-EXE electron/css/themes.css, v5 — the accent values
+ * are the AA-checked ones from Procress 18 part 5: white on --accent ≥ 4.5:1).
  *
  * Keep every colour defined on bare :root and re-declare only what changes in
  * the dark block — a colour whose ONLY definition lives inside a media query
  * is undefined for half your users. */
 :root {
-  --bg: #faf9f7;
+  /* daylight */
+  --bg: #f4f6fb;
   --surface: #ffffff;
-  --border: #e3e0da;
-  --text: #1f1d1a;
-  --muted: #6b665e;
-  --accent: #7b5cd6;
-  --accent-text: #ffffff;
-  --danger: #b3261e;
+  --raised: #eef1f7;
+  --hover: #e2e7f0;
+  --border: #ccd3df;
+  --t1: #172033;
+  --t2: #596274;
+  --accent: #2563eb;
+  --accent-h: #1d4ed8;
+  --accent-text: #1d4ed8;   /* accent used AS text on --surface */
+  --on-accent: #ffffff;
+  --danger: #dc2626;
   --radius: 8px;
   --pad: 12px;
+  color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #17161a;
-    --surface: #201f25;
-    --border: #35333c;
-    --text: #eceaf2;
-    --muted: #9d99a8;
-    --accent: #a68cf0;
-    --accent-text: #17161a;
-    --danger: #f2837b;
+    /* midnight */
+    --bg: #0f0f13;
+    --surface: #18181f;
+    --raised: #22222d;
+    --hover: #2a2a38;
+    --border: #2e2e3f;
+    --t1: #e8e8f0;
+    --t2: #9090a8;
+    --accent: #585ced;
+    --accent-h: #818cf8;
+    --accent-text: #818cf8;
+    --on-accent: #ffffff;
+    --danger: #ef4444;
   }
 }
 
 * { box-sizing: border-box; }
 
+/* Any `display:` rule below would otherwise beat the UA stylesheet's
+   [hidden]{display:none} — this keeps the `hidden` attribute meaningful. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
-  padding: var(--pad);
   background: var(--bg);
-  color: var(--text);
+  color: var(--t1);
   font: 14px/1.5 "Segoe UI", system-ui, -apple-system, "Noto Sans Thai", sans-serif;
 }
 
-/* The panel lives in a dock the user can drag down to a very narrow width.
- * Nothing here may assume more room than that. */
+/* ── standalone window ──────────────────────────────────────────────────
+   Frameless (frame:false): the title bar is the only way to move or close it,
+   so the page is a fixed bar over a scrolling main. */
+body.window { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+body.window main { flex: 1; overflow-y: auto; padding: var(--pad); }
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 6px 0 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+.titlebar .title { flex: 1; font-weight: 600; font-size: 13px; }
+.no-drag { -webkit-app-region: no-drag; }
+.icon-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--t2);
+}
+.icon-btn:hover { background: var(--danger); color: #fff; filter: none; }
+
+/* ── side panel ─────────────────────────────────────────────────────────
+   The DraconDex 5 side panel is 220–640px wide (default 300) and draws its
+   own header. Nothing here may assume more room than 220px. */
 body.panel { padding: 8px; font-size: 13px; }
+body.panel h2:first-of-type { margin-top: 10px; }
+.context { color: var(--t1); font-weight: 600; }
+.status { margin-top: 10px; }
 
 h1 { font-size: 16px; margin: 0 0 4px; }
-h2 { font-size: 13px; margin: 16px 0 6px; color: var(--muted); font-weight: 600; }
-p.hint { margin: 0 0 12px; color: var(--muted); font-size: 12px; }
+h2 { font-size: 13px; margin: 16px 0 6px; color: var(--t2); font-weight: 600; }
+p.hint { margin: 0 0 12px; color: var(--t2); font-size: 12px; }
 
 .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .row > input { flex: 1 1 120px; min-width: 0; }
 
 input, textarea, button {
   font: inherit;
-  color: var(--text);
-  background: var(--surface);
+  color: var(--t1);
+  background: var(--raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 6px 8px;
 }
-textarea { width: 100%; resize: vertical; min-height: 54px; }
+input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+textarea { width: 100%; resize: vertical; min-height: 54px; margin-top: 6px; }
 
-button { cursor: pointer; background: var(--accent); color: var(--accent-text); border-color: transparent; }
-button:hover { filter: brightness(1.08); }
-button.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
+button { cursor: pointer; background: var(--accent); color: var(--on-accent); border-color: transparent; }
+button:hover { background: var(--accent-h); }
+button.ghost { background: var(--surface); color: var(--t1); border-color: var(--border); }
+button.ghost:hover { background: var(--hover); }
 button.link { background: none; border: none; color: var(--danger); padding: 2px 4px; }
 
 ul.notes { list-style: none; margin: 10px 0 0; padding: 0; }
@@ -78,12 +131,13 @@ ul.notes li {
   border-radius: var(--radius);
   padding: 8px;
   margin-bottom: 6px;
-  /* Long words in user content must not push the dock wider than its column. */
+  /* Long words in user content must not push the panel wider than its column. */
   overflow-wrap: anywhere;
 }
 ul.notes .title { font-weight: 600; }
-ul.notes .body { color: var(--muted); font-size: 12px; white-space: pre-wrap; }
-ul.notes .meta { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+ul.notes .body { color: var(--t2); font-size: 12px; white-space: pre-wrap; }
+ul.notes .meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+ul.notes .muted { color: var(--t2); font-size: 12px; flex: 1; }
 li.pinned { border-color: var(--accent); }
 
 .box {
@@ -92,8 +146,8 @@ li.pinned { border-color: var(--accent); }
   padding: 8px;
   background: var(--surface);
   font-size: 12px;
-  color: var(--muted);
+  color: var(--t2);
   overflow-wrap: anywhere;
 }
-.box code { color: var(--text); }
-.empty { color: var(--muted); font-size: 12px; padding: 8px 0; }
+.box code, code { color: var(--accent-text); font-family: ui-monospace, Consolas, monospace; }
+.empty { color: var(--t2); font-size: 12px; padding: 8px 0; }
