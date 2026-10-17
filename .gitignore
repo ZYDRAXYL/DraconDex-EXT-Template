@@ -2,3 +2,8 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.log
+# No npm dependencies here: the package.json only carries scripts, so the
+# package-lock.json that `npm install` (DEV's scripts/setup.ps1) writes is
+# empty. Drop this line if this repo ever gains dependencies — then the lock
+# belongs in git.
+package-lock.json
